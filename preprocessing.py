@@ -12,3 +12,12 @@ def process_breast_cancer_data():
     normalized_df.insert(len(df.columns) - 1, 'class', df['class'])
     normalized_df = normalized_df.sample(frac=1)
     return normalized_df
+
+def process_glass_data():
+    df = pd.read_csv("data/glass.data", header=None)
+    df.columns = ['id', 'ri', 'na', 'mg', 'al', 'si', 'k', 'ca', 'ba', 'fe', 'class']
+    normalized_df = (df.iloc[:, 1:-1] - df.iloc[:, 1:-1].mean()) / df.iloc[:, 1:-1].std()
+    normalized_df.insert(0, 'id', df['id'])
+    normalized_df.insert(len(df.columns) - 1, 'class', df['class'])
+    normalized_df = normalized_df.sample(frac=1)
+    return normalized_df
