@@ -1,6 +1,6 @@
 import numpy as np
 import preprocessing
-from models.logistic_regression_1 import LogisticRegression
+from models.logistic_regression import LogisticRegression
 from models.adaline import Adaline
 from sklearn.model_selection import StratifiedKFold
 
@@ -39,22 +39,27 @@ def main(model, dataset, learning_rate, stopping_condition):
         training_errors.append(my_model.get_training_error())
 
     # Test; run 5 experiments in total
-    testing_errors = []
-    for model, test_set in zip(trained_models, test_sets):
-        print("\nTesting: ")
-        testing_data = test_set.iloc[:, 1:-1].to_numpy().T
-        testing_labels = test_set.iloc[:, -1:].to_numpy().T
-        if dataset == 'breast':
-            model.test(testing_data, testing_labels)
-        elif dataset == 'glass':
-            model.multi_test(testing_data, testing_labels)
-        testing_errors.append(model.get_testing_error())
+    # testing_errors = []
+    # for model, test_set in zip(trained_models, test_sets):
+    #     print("\nTesting: ")
+    #     testing_data = test_set.iloc[:, 1:-1].to_numpy().T
+    #     testing_labels = test_set.iloc[:, -1:].to_numpy().T
+    #     if dataset == 'breast':
+    #         model.test(testing_data, testing_labels)
+    #     elif dataset == 'glass':
+    #         model.multi_test(testing_data, testing_labels)
+    #     testing_errors.append(model.get_testing_error())
+    #
+    # # Report average results
+    # average_training_error = sum(training_errors) / len(training_errors)
+    # average_testing_error = sum(testing_errors) / len(testing_errors)
+    # print("\nSummary:")
+    # print(f"Average training error: {average_training_error}")
+    # print(f"Average testing error: {average_testing_error}")
 
-    # Report average results
-    average_training_error = sum(training_errors) / len(training_errors)
-    average_testing_error = sum(testing_errors) / len(testing_errors)
-    print("\nSummary:")
-    print(f"Average training error: {average_training_error}")
-    print(f"Average testing error: {average_testing_error}")
+main('logistic_regression', 'glass', 0.001, 5)
 
-main('adaline', 'breast', 0.04, 5)
+# Adaline breast: 0.01 & 5
+# Adaline glass: 0.009 & 10
+# Logistic regression breast: 0.009 & 10
+# Logistic regression glass: 0.001 & 5

@@ -73,7 +73,8 @@ class Adaline:
         output = classifier(weighted_sum)
 
         # Compute testing error
-        print("Classification error: ", self.compute_testing_error(output, labels))
+        testing_error = self.compute_testing_error(output, labels)
+        print(testing_error)
 
     def signum(self, x):
         return 1 if x >= 0 else -1
@@ -153,7 +154,8 @@ class Adaline:
         classifications = self.multi_classify(data, cls_output)
 
         # Compute testing error
-        print("Classification error: ", self.compute_testing_error(classifications, labels))
+        testing_error = self.compute_testing_error(classifications, labels)
+        print(testing_error)
 
     def multi_classify(self, data, output):
         classifications = [(None, -np.inf) for _ in range(data.shape[1])]
@@ -169,7 +171,7 @@ class Adaline:
             self.multicls_labels[cls] = np.where(self.raw_data['class'] == cls, 1, -1)
 
     def compute_training_error(self, output):
-        results = output == self.labels
+        results = output == self.labels  # Maybe make this an instance variable
         self.training_stats['correct'] = np.count_nonzero(results == True)
         self.training_stats['incorrect'] = np.count_nonzero(results == False)
         self.training_stats['classified'] = self.training_stats['correct'] + self.training_stats['incorrect']
