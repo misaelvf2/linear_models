@@ -5,7 +5,7 @@ from sklearn.model_selection import StratifiedKFold
 
 def main():
     # Import, process, and normalize breast cancer data
-    df = preprocessing.process_breast_cancer_data()
+    df = preprocessing.process_glass_data()
 
     # Set up stratified 5-fold cross-validation; only necessary for classificaton
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=5)
@@ -17,12 +17,12 @@ def main():
     # Train; run 5 experiments in total
     trained_models = []
     for training_set in training_sets:
-        print("\nTraining: ")
+        print("\nTraining:")
         training_data = training_set.iloc[:, 1:-1].to_numpy().T
         training_labels = training_set.iloc[:, -1:].to_numpy().T
-        step_size = 0.1
-        my_model = LogisticRegression(training_data, training_labels, [0, 1], step_size, 5)
-        my_model.train()
+        step_size = 0.085
+        my_model = LogisticRegression(training_data, training_labels, [1, 2, 3, 5, 6, 7], step_size)
+        my_model.multi_train()
         trained_models.append(my_model)
 
     # Test; run 5 experiments in total
@@ -30,6 +30,6 @@ def main():
         print("\nTesting: ")
         testing_data = test_set.iloc[:, 1:-1].to_numpy().T
         testing_labels = test_set.iloc[:, -1:].to_numpy().T
-        model.test(testing_data, testing_labels)
+        model.multi_test(testing_data, testing_labels)
 
 main()

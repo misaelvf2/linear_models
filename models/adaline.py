@@ -25,6 +25,8 @@ class Adaline:
 
         # Multiclass variables
         self.multicls_labels = dict()
+        self.cls_weights = dict()
+        self.cls_threshold = dict()
 
     def train(self):
         # Initialize training variables
@@ -59,7 +61,8 @@ class Adaline:
             else:
                 same_error = 0
             last_error = training_error
-            print("Classification error: ", training_error)
+            # print("Classification error: ", training_error)
+            print(training_error)
 
     def test(self, data, labels):
         # Compute weighted sum
@@ -82,7 +85,7 @@ class Adaline:
         # Initialize variables
         num_features = self.data.shape[0]
         num_examples = self.data.shape[1]
-        cls_weights = {cls: None for cls in self.classes}
+        # self.cls_weights = {cls: None for cls in self.classes}
         cls_weighted_sum = {cls: None for cls in self.classes}
         cls_output = {cls: None for cls in self.classes}
 
@@ -90,7 +93,7 @@ class Adaline:
         for cls in self.classes:
             weights = np.array([0 for _ in range(num_features)]).reshape(num_features, 1)
             threshold = 0
-            cls_weights[cls] = (weights, threshold)
+            self.cls_weights[cls] = (weights, threshold)
 
         # Main loop over all classes
         last_error = 1.0
@@ -101,7 +104,7 @@ class Adaline:
                 labels = self.multicls_labels[cls]
 
                 # Compute weighted sum
-                weighted_sum = np.dot(cls_weights[cls][0].T, self.data) + cls_weights[cls][1]
+                weighted_sum = np.dot(self.cls_weights[cls][0].T, self.data) + self.cls_weights[cls][1]
                 cls_weighted_sum[cls] = weighted_sum
 
                 # Compute weight changes
@@ -109,9 +112,9 @@ class Adaline:
                 threshold_change = (1 / num_examples) * np.sum(labels - weighted_sum)
 
                 # Update weights
-                weights = cls_weights[cls][0] + self.learning_rate * weight_changes
-                threshold = cls_weights[cls][1] + self.learning_rate * threshold_change
-                cls_weights[cls] = (weights, threshold)
+                weights = self.cls_weights[cls][0] + self.learning_rate * weight_changes
+                threshold = self.cls_weights[cls][1] + self.learning_rate * threshold_change
+                self.cls_weights[cls] = (weights, threshold)
 
                 # Pass through activation function
                 activation = np.vectorize(self.signum)
@@ -119,7 +122,7 @@ class Adaline:
                 cls_output[cls] = output
 
             # Classify
-            classifications = self.multi_classify(cls_output)
+            classifications = self.multi_classify(self.data, cls_output)
 
             # Compute training error
             training_error = self.compute_training_error(classifications)
@@ -128,10 +131,32 @@ class Adaline:
             else:
                 same_error = 0
             last_error = training_error
-            print("Classification error: ", training_error)
+            # print("Classification error: ", training_error)
+            print(training_error)
 
-    def multi_classify(self, output):
-        classifications = [(None, -np.inf) for _ in range(self.data.shape[1])]
+    def multi_test(self, data, labels):
+        # Initialize variables
+        cls_weighted_sum = {cls: None for cls in self.classes}
+        cls_output = {cls: None for cls in self.classes}
+
+        for cls in self.classes:
+            # Compute weighted sum
+            weighted_sum = np.dot(self.cls_weights[cls][0].T, data) + self.cls_weights[cls][1]
+            cls_weighted_sum[cls] = weighted_sum
+
+            # Pass through activation function
+            activation = np.vectorize(self.signum)
+            output = activation(weighted_sum)
+            cls_output[cls] = output
+
+        # Classify
+        classifications = self.multi_classify(data, cls_output)
+
+        # Compute testing error
+        print("Classification error: ", self.compute_testing_error(classifications, labels))
+
+    def multi_classify(self, data, output):
+        classifications = [(None, -np.inf) for _ in range(data.shape[1])]
         for cls, arr in output.items():
             for i, value in enumerate(arr[0]):
                 if value > classifications[i][1]:
