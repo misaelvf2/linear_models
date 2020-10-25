@@ -210,8 +210,9 @@ class Adaline:
 
     def plot_error(self):
         plt.plot(self.errors)
-        plt.ylabel('Training error')
-        plt.show()
+        plt.ylabel('Error')
+        plt.savefig("error.png")
+        # plt.show()
 
     def report_classifications(self):
         print("Classifications: ", self.classifications)

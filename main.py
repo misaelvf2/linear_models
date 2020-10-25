@@ -5,6 +5,15 @@ from models.adaline import Adaline
 from sklearn.model_selection import StratifiedKFold
 
 def main(model, dataset, learning_rate, stopping_condition, threshold=None):
+    """
+    Main program
+    :param model: Str
+    :param dataset: Str
+    :param learning_rate: Float
+    :param stopping_condition: Float
+    :param threshold: Float
+    :return: None
+    """
     # Import, process, and normalize data
     if dataset == 'breast':
         df = preprocessing.process_breast_cancer_data()
@@ -36,7 +45,7 @@ def main(model, dataset, learning_rate, stopping_condition, threshold=None):
                 Adaline(training_data, training_labels, classes, learning_rate, threshold, stopping_condition, raw_data=training_set)
         elif model == 'logistic_regression':
             my_model = \
-                LogisticRegression(training_data, training_labels, classes, learning_rate, stopping_condition, raw_data=training_set)
+                LogisticRegression(training_data, training_labels, classes, learning_rate, threshold, stopping_condition, raw_data=training_set)
         if dataset == 'breast' or dataset == 'voter':
             my_model.train()
         elif dataset == 'glass' or dataset == 'iris' or dataset == 'soybean':
@@ -66,11 +75,4 @@ def main(model, dataset, learning_rate, stopping_condition, threshold=None):
     print(f"Average training error: {average_training_error}")
     print(f"Average testing error: {average_testing_error}")
 
-main('logistic_regression', 'voter', 0.01, 5, threshold=0)
-
-# Adaline breast: 0.01 & 5
-# Adaline glass: 0.009 & 10
-# Adaline soybean: 0.01 & 10
-# Logistic regression breast: 0.009 & 10
-# Logistic regression glass: 0.005 & 10
-# 0.3 threshold for voter data
+main('adaline', 'soybean', 0.01, 50, threshold=0)
