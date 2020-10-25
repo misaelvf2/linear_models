@@ -71,10 +71,14 @@ def process_voter_data():
     """
     df = pd.read_csv('data/house-votes-84.data', header=None, na_values=['?'])
     df = df.fillna(np.random.randint(0, 1))
-    df.columns = ['handicapped-infants', 'water-project-cost-sharing', 'adoption-of-budget', 'physician-fee-freeze',
+    df.columns = ['class', 'handicapped-infants', 'water-project-cost-sharing', 'adoption-of-budget', 'physician-fee-freeze',
                   'el-salvador-aid', 'religious-groups-in-school', 'anti-satellite-test-ban', 'aid-to-contras',
                   'mx-missile', 'immigration', 'synfuels-corp-cutback', 'ed-spending', 'superfunds-right-to-sue',
-                  'crime', 'duty-free-exports', 'export-admin-act-sa', 'class']
+                  'crime', 'duty-free-exports', 'export-admin-act-sa']
+    df = df[['handicapped-infants', 'water-project-cost-sharing', 'adoption-of-budget', 'physician-fee-freeze',
+                  'el-salvador-aid', 'religious-groups-in-school', 'anti-satellite-test-ban', 'aid-to-contras',
+                  'mx-missile', 'immigration', 'synfuels-corp-cutback', 'ed-spending', 'superfunds-right-to-sue',
+                  'crime', 'duty-free-exports', 'export-admin-act-sa', 'class']]
     df['handicapped-infants'] = df['handicapped-infants'].apply(lambda x: 1 if x == 'y' else 0)
     df['water-project-cost-sharing'] = df['water-project-cost-sharing'].apply(lambda x: 1 if x == 'y' else 0)
     df['adoption-of-budget'] = df['adoption-of-budget'].apply(lambda x: 1 if x == 'y' else 0)
@@ -91,5 +95,6 @@ def process_voter_data():
     df['crime'] = df['crime'].apply(lambda x: 1 if x == 'y' else 0)
     df['duty-free-exports'] = df['duty-free-exports'].apply(lambda x: 1 if x == 'y' else 0)
     df['export-admin-act-sa'] = df['export-admin-act-sa'].apply(lambda x: 1 if x == 'y' else 0)
-    df['class'] = df['class'].apply(lambda x: 1 if x == 'y' else -1)
+    df['class'] = df['class'].apply(lambda x: 1 if x == 'democrat' else -1)
+    df = df.sample(frac=1)
     return df

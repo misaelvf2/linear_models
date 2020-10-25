@@ -3,18 +3,20 @@ import matplotlib.pyplot as plt
 
 
 class Adaline:
-    def __init__(self, data, labels, classes, learning_rate, stopping_condition, raw_data=None):
+    def __init__(self, data, labels, classes, learning_rate, threshold, stopping_condition, raw_data=None):
         # Initialization variables
         self.data = data
         self.labels = labels
         self.classes = classes
         self.learning_rate = learning_rate
+        self.threshold = threshold
         self.stopping_condition = stopping_condition
         self.raw_data = raw_data
 
         # Training variables
         self.weights = None
-        self.threshold = None
+        self.bias = None
+        self.classifications = None
 
         # Training statistics
         self.training_stats = dict(correct=0, incorrect=0, classified=0, false_positives=0, false_negatives=0,
@@ -28,33 +30,35 @@ class Adaline:
         # Multiclass variables
         self.multicls_labels = dict()
         self.cls_weights = dict()
-        self.cls_threshold = dict()
+        self.cls_bias = dict()
+        self.multi_classifications = None
 
     def train(self):
         # Initialize training variables
         num_features = self.data.shape[0]
         num_examples = self.data.shape[1]
         self.weights = np.array([0 for _ in range(num_features)]).reshape(num_features, 1)
-        self.threshold = 0
+        self.bias = 0
 
         # Main loop
         last_error = 1.0
         same_error = 0
         while same_error < self.stopping_condition:
             # Compute weighted sum
-            weighted_sum = np.dot(self.weights.T, self.data) + self.threshold
+            weighted_sum = np.dot(self.weights.T, self.data) + self.bias
 
             # Compute weight changes
             weight_changes = (1 / num_examples) * np.dot(self.data, (self.labels - weighted_sum).T)
-            threshold_change = (1 / num_examples) * np.sum(self.data - weighted_sum)
+            bias_change = (1 / num_examples) * np.sum(self.data - weighted_sum)
 
             # Update weights
             self.weights = self.weights + self.learning_rate * weight_changes
-            self.threshold = self.threshold + self.learning_rate * threshold_change
+            self.bias = self.bias + self.learning_rate * bias_change
 
             # Pass through activation function
             classifier = np.vectorize(self.signum)
             output = classifier(weighted_sum)
+            self.classifications = output
 
             # Compute training error
             training_error = self.compute_training_error(output)
@@ -68,18 +72,19 @@ class Adaline:
 
     def test(self, data, labels):
         # Compute weighted sum
-        weighted_sum = np.dot(self.weights.T, data) + self.threshold
+        weighted_sum = np.dot(self.weights.T, data) + self.bias
 
         # Pass through activation function
         classifier = np.vectorize(self.signum)
         output = classifier(weighted_sum)
+        self.classifications = output
 
         # Compute testing error
         testing_error = self.compute_testing_error(output, labels)
         print(testing_error)
 
     def signum(self, x):
-        return 1 if x >= 0 else -1
+        return 1 if x >= self.threshold else -1
 
     def multi_train(self):
         # Initialize multiclass labels
@@ -88,15 +93,14 @@ class Adaline:
         # Initialize variables
         num_features = self.data.shape[0]
         num_examples = self.data.shape[1]
-        # self.cls_weights = {cls: None for cls in self.classes}
         cls_weighted_sum = {cls: None for cls in self.classes}
         cls_output = {cls: None for cls in self.classes}
 
         # Initialize weights
         for cls in self.classes:
             weights = np.array([0 for _ in range(num_features)]).reshape(num_features, 1)
-            threshold = 0
-            self.cls_weights[cls] = (weights, threshold)
+            bias = 0
+            self.cls_weights[cls] = (weights, bias)
 
         # Main loop over all classes
         last_error = 1.0
@@ -112,12 +116,12 @@ class Adaline:
 
                 # Compute weight changes
                 weight_changes = (1 / num_examples) * np.dot(self.data, (labels - weighted_sum).T)
-                threshold_change = (1 / num_examples) * np.sum(labels - weighted_sum)
+                bias_change = (1 / num_examples) * np.sum(labels - weighted_sum)
 
                 # Update weights
                 weights = self.cls_weights[cls][0] + self.learning_rate * weight_changes
-                threshold = self.cls_weights[cls][1] + self.learning_rate * threshold_change
-                self.cls_weights[cls] = (weights, threshold)
+                bias = self.cls_weights[cls][1] + self.learning_rate * bias_change
+                self.cls_weights[cls] = (weights, bias)
 
                 # Pass through activation function
                 activation = np.vectorize(self.signum)
@@ -126,6 +130,7 @@ class Adaline:
 
             # Classify
             classifications = self.multi_classify(self.data, cls_output)
+            self.classifications = classifications
 
             # Compute training error
             training_error = self.compute_training_error(classifications)
@@ -154,6 +159,7 @@ class Adaline:
 
         # Classify
         classifications = self.multi_classify(data, cls_output)
+        self.classifications = classifications
 
         # Compute testing error
         testing_error = self.compute_testing_error(classifications, labels)
@@ -201,3 +207,11 @@ class Adaline:
 
     def get_testing_error(self):
         return self.testing_stats['error']
+
+    def plot_error(self):
+        plt.plot(self.errors)
+        plt.ylabel('Training error')
+        plt.show()
+
+    def report_classifications(self):
+        print("Classifications: ", self.classifications)

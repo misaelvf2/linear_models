@@ -15,6 +15,7 @@ class LogisticRegression:
         # Training variables
         self.weights = None
         self.threshold = None
+        self.classifications = None
 
         # Training statistics
         self.training_stats = dict(correct=0, incorrect=0, classified=0, false_positives=0, false_negatives=0,
@@ -61,6 +62,7 @@ class LogisticRegression:
             # Pass through activation function
             classifier = np.vectorize(lambda x: 1 if x >= 0 else -1)
             output = classifier(sigmoid)
+            self.classifications = output
 
             # Determine classification error
             training_error = self.compute_training_error(output)
@@ -81,7 +83,8 @@ class LogisticRegression:
 
         # Pass through activation function
         classifier = np.vectorize(lambda x: 1 if x >= 0 else -1)
-        output = classifier(sigmoid)  #  Maybe make this an instance variable
+        output = classifier(sigmoid)
+        self.classifications = output
 
         # Determine classification error
         testing_error = self.compute_testing_error(output, labels)
@@ -160,6 +163,7 @@ class LogisticRegression:
 
             # Classify
             classifications = self.multi_classify(self.data, cls_softmax)
+            self.classifications = classifications
 
             # Compute training error
             training_error = self.compute_training_error(classifications)
@@ -191,6 +195,7 @@ class LogisticRegression:
 
         # Classify
         classifications = self.multi_classify(data, cls_softmax)
+        self.classifications = classifications
 
         # Compute testing error
         testing_error = self.compute_testing_error(classifications, labels)
@@ -242,3 +247,11 @@ class LogisticRegression:
 
     def get_testing_error(self):
         return self.testing_stats['error']
+
+    def plot_error(self):
+        plt.plot(self.errors)
+        plt.ylabel('Training error')
+        plt.show()
+
+    def report_classifications(self):
+        print("Classifications: ", self.classifications)
