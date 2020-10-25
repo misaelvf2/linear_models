@@ -10,6 +10,12 @@ def main(model, dataset, learning_rate, stopping_condition):
         df = preprocessing.process_breast_cancer_data()
     elif dataset == 'glass':
         df = preprocessing.process_glass_data()
+    elif dataset == 'iris':
+        df = preprocessing.process_iris_data()
+    elif dataset == 'soybean':
+        df = preprocessing.process_soybean_data()
+    elif dataset == 'voter':
+        df = preprocessing.process_voter_data()
 
     # Set up stratified 5-fold cross-validation; only necessary for classificaton
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=5)
@@ -31,35 +37,36 @@ def main(model, dataset, learning_rate, stopping_condition):
         elif model == 'logistic_regression':
             my_model = \
                 LogisticRegression(training_data, training_labels, classes, learning_rate, stopping_condition, raw_data=training_set)
-        if dataset == 'breast':
+        if dataset == 'breast' or dataset == 'voter':
             my_model.train()
-        elif dataset == 'glass':
+        elif dataset == 'glass' or dataset == 'iris' or dataset == 'soybean':
             my_model.multi_train()
         trained_models.append(my_model)
         training_errors.append(my_model.get_training_error())
 
     # Test; run 5 experiments in total
-    # testing_errors = []
-    # for model, test_set in zip(trained_models, test_sets):
-    #     print("\nTesting: ")
-    #     testing_data = test_set.iloc[:, 1:-1].to_numpy().T
-    #     testing_labels = test_set.iloc[:, -1:].to_numpy().T
-    #     if dataset == 'breast':
-    #         model.test(testing_data, testing_labels)
-    #     elif dataset == 'glass':
-    #         model.multi_test(testing_data, testing_labels)
-    #     testing_errors.append(model.get_testing_error())
-    #
-    # # Report average results
-    # average_training_error = sum(training_errors) / len(training_errors)
-    # average_testing_error = sum(testing_errors) / len(testing_errors)
-    # print("\nSummary:")
-    # print(f"Average training error: {average_training_error}")
-    # print(f"Average testing error: {average_testing_error}")
+    testing_errors = []
+    for model, test_set in zip(trained_models, test_sets):
+        print("\nTesting: ")
+        testing_data = test_set.iloc[:, 1:-1].to_numpy().T
+        testing_labels = test_set.iloc[:, -1:].to_numpy().T
+        if dataset == 'breast' or dataset == 'voter':
+            model.test(testing_data, testing_labels)
+        elif dataset == 'glass' or dataset == 'iris' or dataset == 'soybean':
+            model.multi_test(testing_data, testing_labels)
+        testing_errors.append(model.get_testing_error())
 
-main('logistic_regression', 'glass', 0.001, 5)
+    # Report average results
+    average_training_error = sum(training_errors) / len(training_errors)
+    average_testing_error = sum(testing_errors) / len(testing_errors)
+    print("\nSummary:")
+    print(f"Average training error: {average_training_error}")
+    print(f"Average testing error: {average_testing_error}")
+
+main('logistic_regression', 'voter', 0.1, 5)
 
 # Adaline breast: 0.01 & 5
 # Adaline glass: 0.009 & 10
+# Adaline soybean: 0.01 & 10
 # Logistic regression breast: 0.009 & 10
-# Logistic regression glass: 0.001 & 5
+# Logistic regression glass: 0.005 & 10

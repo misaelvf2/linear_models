@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class Adaline:
@@ -18,6 +19,7 @@ class Adaline:
         # Training statistics
         self.training_stats = dict(correct=0, incorrect=0, classified=0, false_positives=0, false_negatives=0,
                                    true_positives=0, true_negatives=0, error=0.0, accuracy=0.0)
+        self.errors = []
 
         # Testing statistics
         self.testing_stats = dict(correct=0, incorrect=0, classified=0, false_positives=0, false_negatives=0,
@@ -61,7 +63,7 @@ class Adaline:
             else:
                 same_error = 0
             last_error = training_error
-            # print("Classification error: ", training_error)
+            self.errors.append(training_error)
             print(training_error)
 
     def test(self, data, labels):
@@ -132,7 +134,7 @@ class Adaline:
             else:
                 same_error = 0
             last_error = training_error
-            # print("Classification error: ", training_error)
+            self.errors.append(training_error)
             print(training_error)
 
     def multi_test(self, data, labels):

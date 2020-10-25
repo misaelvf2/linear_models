@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class LogisticRegression:
@@ -18,6 +19,7 @@ class LogisticRegression:
         # Training statistics
         self.training_stats = dict(correct=0, incorrect=0, classified=0, false_positives=0, false_negatives=0,
                                    true_positives=0, true_negatives=0, error=0.0, accuracy=0.0)
+        self.errors = []
 
         # Testing statistics
         self.testing_stats = dict(correct=0, incorrect=0, classified=0, false_positives=0, false_negatives=0,
@@ -67,6 +69,7 @@ class LogisticRegression:
             else:
                 same_error = 0
             last_error = training_error
+            self.errors.append(training_error)
             print(training_error)
 
     def test(self, data, labels):
@@ -165,6 +168,7 @@ class LogisticRegression:
             else:
                 same_error = 0
             last_error = training_error
+            self.errors.append(training_error)
             print(training_error)
 
     def multi_test(self, data, labels):
@@ -174,7 +178,7 @@ class LogisticRegression:
 
         for cls in self.classes:
             # Compute weighted sums
-            weighted_sums = np.dot(self.discriminants[cls][0].T, data) + self.discriminants[cls][1]
+            weighted_sums = np.dot(self.cls_weights[cls][0].T, data) + self.cls_weights[cls][1]
             cls_weighted_sums[cls] = weighted_sums
 
         for curr_cls in self.classes:
@@ -183,10 +187,14 @@ class LogisticRegression:
             for cls in self.classes:
                 if cls != curr_cls:
                     denominator += np.exp(cls_weighted_sums[cls])
-            cls_softmax[curr_cls] = np.exp(cls_weighted_sums[curr_cls]) / denominator
+            cls_softmax[curr_cls] = np.divide(np.exp(cls_weighted_sums[curr_cls]) - 0.5, denominator - 0.5)
 
-        # Determine classification error
-        print(self.multi_testing_error(cls_softmax, labels))
+        # Classify
+        classifications = self.multi_classify(data, cls_softmax)
+
+        # Compute testing error
+        testing_error = self.compute_testing_error(classifications, labels)
+        print(testing_error)
 
     def multi_classify(self, data, output):
         classifications = [(None, -np.inf) for _ in range(data.shape[1])]
