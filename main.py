@@ -75,4 +75,5 @@ def main(model, dataset, learning_rate, stopping_condition, threshold=None):
     print(f"Average training error: {average_training_error}")
     print(f"Average testing error: {average_testing_error}")
 
-main('adaline', 'soybean', 0.01, 50, threshold=0)
+# main('adaline', 'breast', 0.01, 10, threshold=0)
+main('logistic_regression', 'iris', 0.01, 10, threshold=0.5)

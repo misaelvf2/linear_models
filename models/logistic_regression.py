@@ -192,11 +192,15 @@ class LogisticRegression:
 
                 # Compute weight changes
                 cls_weight_changes[curr_cls] = (1 / num_examples) * np.dot(self.data, cls_weighted_sum_derivatives[curr_cls].T)
+                # print(f"Gradient calculation: Avg({1 / num_examples}) * Dot({np.dot(self.data, cls_weighted_sum_derivatives[curr_cls].T)} = Result({cls_weight_changes})")
                 cls_bias_change[curr_cls] = (1 / num_examples) * np.sum(cls_weighted_sum_derivatives[curr_cls])
 
                 # Update weights
+                # print("Weights before: ", self.cls_weights)
                 self.cls_weights[curr_cls] = (self.cls_weights[curr_cls][0] - self.learning_rate * cls_weight_changes[curr_cls],
                                            self.cls_weights[curr_cls][1] - self.learning_rate * cls_bias_change[curr_cls])
+                # print("Weight changes: ", cls_weight_changes[curr_cls])
+                # print("Weights after: ", self.cls_weights)
 
             # Classify
             classifications = self.multi_classify(self.data, cls_softmax)
@@ -312,6 +316,6 @@ class LogisticRegression:
     def report_classifications(self):
         """
         Prints model classifications
-        :return: 
+        :return:
         """
         print("Classifications: ", self.classifications)

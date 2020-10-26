@@ -3,7 +3,20 @@ import matplotlib.pyplot as plt
 
 
 class Adaline:
+    """
+    Implementation of the Adaline algorithm
+    """
     def __init__(self, data, labels, classes, learning_rate, threshold, stopping_condition, raw_data=None):
+        """
+        Initializes class
+        :param data: numpy.ndarray
+        :param labels: numpy.ndarray
+        :param classes: List
+        :param learning_rate: Float
+        :param threshold: Float
+        :param stopping_condition: Float
+        :param raw_data: DataFrame
+        """
         # Initialization variables
         self.data = data
         self.labels = labels
@@ -34,6 +47,10 @@ class Adaline:
         self.multi_classifications = None
 
     def train(self):
+        """
+        Main training loop
+        :return: None
+        """
         # Initialize training variables
         num_features = self.data.shape[0]
         num_examples = self.data.shape[1]
@@ -50,10 +67,14 @@ class Adaline:
             # Compute weight changes
             weight_changes = (1 / num_examples) * np.dot(self.data, (self.labels - weighted_sum).T)
             bias_change = (1 / num_examples) * np.sum(self.data - weighted_sum)
+            # print(f"Gradient calculation: Avg({1 / num_examples}) * Dot({np.dot(self.data, (self.labels - weighted_sum).T)}) = Result({weight_changes})")
 
             # Update weights
+            # print("Weights before: ", self.weights)
             self.weights = self.weights + self.learning_rate * weight_changes
             self.bias = self.bias + self.learning_rate * bias_change
+            # print("Weight changes: ", weight_changes)
+            # print("Weights after: ", self.weights)
 
             # Pass through activation function
             classifier = np.vectorize(self.signum)
@@ -71,6 +92,12 @@ class Adaline:
             print(training_error)
 
     def test(self, data, labels):
+        """
+        Tests given data
+        :param data: numpy.ndarray
+        :param labels: numpy.ndarray
+        :return: None
+        """
         # Compute weighted sum
         weighted_sum = np.dot(self.weights.T, data) + self.bias
 
@@ -84,9 +111,18 @@ class Adaline:
         print(testing_error)
 
     def signum(self, x):
+        """
+        Implements signum activation function
+        :param x: Float
+        :return: Int
+        """
         return 1 if x >= self.threshold else -1
 
     def multi_train(self):
+        """
+        Main training loop for multiclass problems
+        :return: None
+        """
         # Initialize multiclass labels
         self.initialize_multiclass_labels()
 
@@ -143,6 +179,12 @@ class Adaline:
             print(training_error)
 
     def multi_test(self, data, labels):
+        """
+        Classifies given data in multiclass case
+        :param data: numpy.ndarray
+        :param labels: numpy.ndarray
+        :return: None
+        """
         # Initialize variables
         cls_weighted_sum = {cls: None for cls in self.classes}
         cls_output = {cls: None for cls in self.classes}
@@ -166,6 +208,12 @@ class Adaline:
         print(testing_error)
 
     def multi_classify(self, data, output):
+        """
+        Classifies weighted sums in multiclass case
+        :param data: numpy.ndarray
+        :param output: numpy.ndarray
+        :return: List
+        """
         classifications = [(None, -np.inf) for _ in range(data.shape[1])]
         for cls, arr in output.items():
             for i, value in enumerate(arr[0]):
@@ -175,10 +223,19 @@ class Adaline:
         return classifications
 
     def initialize_multiclass_labels(self):
+        """
+        Separates out class labels in multiclass case
+        :return: None
+        """
         for cls in self.classes:
             self.multicls_labels[cls] = np.where(self.raw_data['class'] == cls, 1, -1)
 
     def compute_training_error(self, output):
+        """
+        Computes training error
+        :param output: numpy.ndarray
+        :return: Float
+        """
         results = output == self.labels  # Maybe make this an instance variable
         self.training_stats['correct'] = np.count_nonzero(results == True)
         self.training_stats['incorrect'] = np.count_nonzero(results == False)
@@ -188,6 +245,12 @@ class Adaline:
         return self.training_stats['error']
 
     def compute_testing_error(self, output, labels):
+        """
+        Computes testing error
+        :param output: numpy.ndarray
+        :param labels: numpy.ndarray
+        :return: Float
+        """
         results = output == labels
         self.testing_stats['correct'] = np.count_nonzero(results == True)
         self.testing_stats['incorrect'] = np.count_nonzero(results == False)
@@ -197,22 +260,46 @@ class Adaline:
         return self.testing_stats['error']
 
     def report_training_stats(self):
+        """
+        Prints training stats
+        :return: None
+        """
         print(self.training_stats)
 
     def report_testing_stats(self):
+        """
+        Prints testing stats
+        :return: None
+        """
         print(self.testing_stats)
 
     def get_training_error(self):
+        """
+        Returns training error
+        :return: Float
+        """
         return self.training_stats['error']
 
     def get_testing_error(self):
+        """
+        Returns testing error
+        :return: Float
+        """
         return self.testing_stats['error']
 
     def plot_error(self):
+        """
+        Plots testing error with respect to number of iterations
+        :return: None
+        """
         plt.plot(self.errors)
         plt.ylabel('Error')
         plt.savefig("error.png")
         # plt.show()
 
     def report_classifications(self):
+        """
+        Prints model classifications
+        :return:
+        """
         print("Classifications: ", self.classifications)

@@ -2,6 +2,10 @@ import pandas as pd
 import numpy as np
 
 def process_breast_cancer_data():
+    """
+    Imports breast cancer dataset, imputes missing values, and normalizes
+    :return: DataFrame
+    """
     df = pd.read_csv("data/breast-cancer-wisconsin.data", header=None, na_values=['?'])
     df = df.fillna(np.random.randint(1, 11))
     df.columns = ['id', 'clump_thickness', 'cell_size_uniformity', 'cell_shape_uniformity', 'marginal_adhesion',
@@ -14,6 +18,10 @@ def process_breast_cancer_data():
     return normalized_df
 
 def process_glass_data():
+    """
+    Imports glass data, and normalizes
+    :return: DataFrame
+    """
     df = pd.read_csv("data/glass.data", header=None)
     df.columns = ['id', 'ri', 'na', 'mg', 'al', 'si', 'k', 'ca', 'ba', 'fe', 'class']
     normalized_df = (df.iloc[:, 1:-1] - df.iloc[:, 1:-1].mean()) / df.iloc[:, 1:-1].std()
@@ -23,6 +31,10 @@ def process_glass_data():
     return normalized_df
 
 def process_iris_data():
+    """
+    Imports iris data, and normalizes
+    :return: DataFrame
+    """
     df = pd.read_csv("data/iris.data", header=None)
     df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
     df['class'] = df['class'].apply(convert_iris_to_numerical)
@@ -32,6 +44,11 @@ def process_iris_data():
     return normalized_df
 
 def convert_iris_to_numerical(x):
+    """
+    Helper function for iris import; converts class labels to numerical data
+    :param x: Str
+    :return: Int
+    """
     if x == 'Iris-setosa':
         return 1
     elif x == 'Iris-versicolor':
@@ -40,6 +57,10 @@ def convert_iris_to_numerical(x):
         return 3
 
 def process_soybean_data():
+    """
+    Imports soybean data, and normalizes
+    :return: DataFrame
+    """
     df = pd.read_csv("data/soybean-small.data", header=None)
     df.columns = ['date', 'plant-stand', 'precip', 'temp', 'hail', 'crop-hist', 'area-damaged',
                   'severity', 'seed-tmt', 'germination', 'plant-growth', 'leaves', 'leafspots-halo',
@@ -48,13 +69,15 @@ def process_soybean_data():
                   'mycelium', 'int-discolor', 'slcerotia', 'fruit-pods', 'fruit spots', 'seed',
                   'mold-growth', 'seed-discolor', 'seed-size', 'shriveling', 'roots', 'class']
     df['class'] = df['class'].apply(convert_soybean_to_numerical)
-    # normalized_df = (df.iloc[:, :-1] - df.iloc[:, :-1].mean()) / df.iloc[:, :-1].std()
-    # normalized_df.insert(len(df.columns) - 1, 'class', df['class'])
-    # normalized_df = normalized_df.sample(frac=1)
     df = df.sample(frac=1)
     return df
 
 def convert_soybean_to_numerical(x):
+    """
+    Helper function for soybean data. Converts class labels to numerical data.
+    :param x: Str
+    :return: Int
+    """
     if x == 'D1':
         return 1
     elif x == 'D2':
